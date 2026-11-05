@@ -6,7 +6,8 @@ declare(strict_types=1);
 
 class PortfolioRepository
 {
-    private const COLUMNS = 'id, business_name, slug, bio, logo_path, whatsapp, status, updated_at';
+    private const COLUMNS = 'id, business_name, slug, bio, logo_path, whatsapp, instagram, tiktok, shopee_url, tokopedia_url, '
+        . 'status, updated_at';
 
     public function __construct(private PDO $pdo)
     {
@@ -39,8 +40,9 @@ class PortfolioRepository
     public function insert(array $data): int
     {
         $stmt = $this->pdo->prepare(
-            'INSERT INTO site_profile (business_name, slug, bio, logo_path, whatsapp, status)
-             VALUES (?, ?, ?, ?, ?, ?)'
+            'INSERT INTO site_profile
+                (business_name, slug, bio, logo_path, whatsapp, instagram, tiktok, shopee_url, tokopedia_url, status)
+             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)'
         );
         $stmt->execute([
             $data['business_name'],
@@ -48,16 +50,28 @@ class PortfolioRepository
             $data['bio'] ?? null,
             $data['logo_path'] ?? null,
             $data['whatsapp'] ?? null,
+            $data['instagram'] ?? null,
+            $data['tiktok'] ?? null,
+            $data['shopee_url'] ?? null,
+            $data['tokopedia_url'] ?? null,
             $data['status'] ?? 'draft',
         ]);
         return (int) $this->pdo->lastInsertId();
+    }
+
+    /** Sentuh updated_at (mis. saat hanya galeri/link yang berubah). */
+    public function touch(int $id): void
+    {
+        $stmt = $this->pdo->prepare('UPDATE site_profile SET updated_at = CURRENT_TIMESTAMP WHERE id = ?');
+        $stmt->execute([$id]);
     }
 
     public function update(int $id, array $data): void
     {
         $stmt = $this->pdo->prepare(
             'UPDATE site_profile
-             SET business_name = ?, slug = ?, bio = ?, logo_path = ?, whatsapp = ?, updated_at = CURRENT_TIMESTAMP
+             SET business_name = ?, slug = ?, bio = ?, logo_path = ?, whatsapp = ?,
+                 instagram = ?, tiktok = ?, shopee_url = ?, tokopedia_url = ?, updated_at = CURRENT_TIMESTAMP
              WHERE id = ?'
         );
         $stmt->execute([
@@ -66,6 +80,10 @@ class PortfolioRepository
             $data['bio'],
             $data['logo_path'],
             $data['whatsapp'],
+            $data['instagram'] ?? null,
+            $data['tiktok'] ?? null,
+            $data['shopee_url'] ?? null,
+            $data['tokopedia_url'] ?? null,
             $id,
         ]);
     }

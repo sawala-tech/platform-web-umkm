@@ -68,14 +68,79 @@ function validate_portfolio_input(array $post, ?array $existing, PortfolioReposi
         }
     }
 
+    // Media sosial (username) & toko online (URL) — semuanya opsional
+    $social = [];
+    foreach (['instagram' => 'Instagram', 'tiktok' => 'TikTok'] as $field => $label) {
+        $raw = trim((string) ($post[$field] ?? ''));
+        $social[$field] = $raw === '' ? null : normalize_social_username($raw);
+        if ($raw !== '' && $social[$field] === null) {
+            $errors[$field] = "Username {$label} hanya boleh huruf, angka, titik, dan garis bawah (maks 30).";
+        }
+    }
+    $shops = [
+        'shopee_url'    => ['Shopee', 'https://shopee.co.id/nama-toko'],
+        'tokopedia_url' => ['Tokopedia', 'https://tokopedia.com/nama-toko'],
+    ];
+    foreach ($shops as $field => [$label, $example]) {
+        $raw = trim((string) ($post[$field] ?? ''));
+        $social[$field] = $raw === '' ? null : normalize_http_url($raw);
+        if ($raw !== '' && $social[$field] === null) {
+            $errors[$field] = "URL toko {$label} tidak valid. Contoh: {$example}";
+        }
+    }
+
+    [$links, $linkErrors] = validate_links_input($post['links'] ?? []);
+    $errors = array_merge($errors, $linkErrors);
+
     $data = [
         'business_name' => $businessName,
         'slug'          => $slug,
         'bio'           => $bio === '' ? null : $bio,
         'whatsapp'      => $whatsapp,
+        'instagram'     => $social['instagram'],
+        'tiktok'        => $social['tiktok'],
+        'shopee_url'    => $social['shopee_url'],
+        'tokopedia_url' => $social['tokopedia_url'],
+        'links'         => $links,
     ];
 
     return [$data, $errors, $notices];
+}
+
+/**
+ * Validasi baris "link lain" dari form (links[i][label], links[i][url]). Baris kosong diabaikan.
+ * @return array{0: array<int, array{label:string, url:string}>, 1: array<string,string>} [links, errors "links.i"]
+ */
+function validate_links_input(mixed $rows): array
+{
+    $links = [];
+    $errors = [];
+    if (!is_array($rows)) {
+        return [$links, $errors];
+    }
+
+    foreach (array_values($rows) as $i => $row) {
+        $label = trim((string) (is_array($row) ? ($row['label'] ?? '') : ''));
+        $rawUrl = trim((string) (is_array($row) ? ($row['url'] ?? '') : ''));
+        if ($label === '' && $rawUrl === '') {
+            continue;
+        }
+        $url = $rawUrl === '' ? null : normalize_http_url($rawUrl);
+
+        if ($label === '') {
+            $errors["links.{$i}"] = 'Label link wajib diisi, mis. Website atau GoFood.';
+        } elseif (mb_strlen($label) > 50) {
+            $errors["links.{$i}"] = 'Label link maksimal 50 karakter.';
+        } elseif ($url === null) {
+            $errors["links.{$i}"] = 'URL tidak valid. Gunakan alamat http:// atau https://.';
+        } elseif (count($links) >= LINKS_MAX) {
+            $errors["links.{$i}"] = 'Maksimal ' . LINKS_MAX . ' link lain.';
+        } else {
+            $links[] = ['label' => $label, 'url' => $url];
+        }
+    }
+
+    return [$links, $errors];
 }
 
 /**
@@ -109,14 +174,24 @@ function is_duplicate_key(PDOException $e): bool
 
 function render_portfolio_form(?array $portfolio, array $values, array $errors = [], int $status = 200): void
 {
+    $images = $portfolio ? (new PortfolioMediaRepository(db()))->images((int) $portfolio['id']) : [];
+
     render('admin/portfolios/form', [
         'title'     => $portfolio ? 'Edit Portofolio' : 'Tambah Portofolio',
         'active'    => 'portfolios',
         'portfolio' => $portfolio,
         'values'    => $values,
         'errors'    => $errors,
+        'images'    => $images,
         'scripts'   => ['assets/js/slug.js'],
     ], 'admin', $status);
+}
+
+/** Id foto yang dicentang "Hapus" pada form (hanya angka positif). */
+function posted_remove_image_ids(): array
+{
+    $raw = $_POST['remove_images'] ?? [];
+    return is_array($raw) ? array_values(array_filter(array_map('intval', $raw), fn(int $id) => $id > 0)) : [];
 }
 
 function portfolios_index(): void
@@ -154,6 +229,7 @@ function portfolios_edit(int $id): void
 
     $values = $portfolio;
     $values['whatsapp'] = $portfolio['whatsapp'] ? format_whatsapp_display($portfolio['whatsapp']) : '';
+    $values['links'] = (new PortfolioMediaRepository(db()))->links($id);
     render_portfolio_form($portfolio, $values);
 }
 
@@ -168,10 +244,17 @@ function portfolios_store(): void
     [$data, $errors, $notices] = validate_portfolio_input($_POST, null, $repo);
 
     $logo = ['path' => null, 'error' => null];
+    $gallery = ['paths' => [], 'error' => null];
     if (!$errors) {
         $logo = handle_logo_upload($_FILES['logo'] ?? null);
         if ($logo['error'] !== null) {
             $errors['logo'] = $logo['error'];
+        }
+    }
+    if (!$errors) {
+        $gallery = handle_gallery_uploads($_FILES['gallery'] ?? null, GALLERY_MAX_IMAGES);
+        if ($gallery['error'] !== null) {
+            $errors['gallery'] = $gallery['error'];
         }
     }
 
@@ -185,13 +268,17 @@ function portfolios_store(): void
     $data['status'] = 'draft';
 
     try {
-        transaction(function (PDO $pdo) use ($repo, $data, $admin): void {
-            $repo->insert($data);
+        transaction(function (PDO $pdo) use ($repo, $data, $gallery, $admin): void {
+            $id = $repo->insert($data);
+            $media = new PortfolioMediaRepository($pdo);
+            $media->addImages($id, $gallery['paths']);
+            $media->replaceLinks($id, $data['links']);
             log_activity($pdo, $admin['id'], ACTION_CREATE_PORTFOLIO,
                 "Menambah portofolio \"{$data['business_name']}\" (/{$data['slug']})");
         });
     } catch (PDOException $e) {
         delete_logo($logo['path']);
+        delete_uploads($gallery['paths']);
         if (!is_duplicate_key($e)) {
             throw $e;
         }
@@ -216,11 +303,24 @@ function portfolios_update(int $id): void
 
     [$data, $errors, $notices] = validate_portfolio_input($_POST, $existing, $repo);
 
+    $media = new PortfolioMediaRepository(db());
+    $existingImageIds = array_map(fn(array $img) => (int) $img['id'], $media->images($id));
+    $removeIds = array_values(array_intersect(posted_remove_image_ids(), $existingImageIds));
+    $existingLinks = $media->links($id);
+
     $logo = ['path' => null, 'error' => null];
+    $gallery = ['paths' => [], 'error' => null];
     if (!$errors) {
         $logo = handle_logo_upload($_FILES['logo'] ?? null);
         if ($logo['error'] !== null) {
             $errors['logo'] = $logo['error'];
+        }
+    }
+    if (!$errors) {
+        $slotsLeft = GALLERY_MAX_IMAGES - (count($existingImageIds) - count($removeIds));
+        $gallery = handle_gallery_uploads($_FILES['gallery'] ?? null, $slotsLeft);
+        if ($gallery['error'] !== null) {
+            $errors['gallery'] = $gallery['error'];
         }
     }
 
@@ -246,6 +346,10 @@ function portfolios_update(int $id): void
         'bio'           => 'bio',
         'whatsapp'      => 'WhatsApp',
         'logo_path'     => 'logo',
+        'instagram'     => 'Instagram',
+        'tiktok'        => 'TikTok',
+        'shopee_url'    => 'Shopee',
+        'tokopedia_url' => 'Tokopedia',
     ];
     $changed = [];
     foreach ($labels as $field => $label) {
@@ -253,20 +357,35 @@ function portfolios_update(int $id): void
             $changed[] = $label;
         }
     }
+    $linksChanged = $data['links'] !== $existingLinks;
+    if ($linksChanged) {
+        $changed[] = 'link lain';
+    }
+    if ($removeIds || $gallery['paths']) {
+        $changed[] = 'galeri';
+    }
 
     if (!$changed) {
         flash('info', 'Tidak ada perubahan.');
         redirect('/admin/portfolios');
     }
 
+    $removedPaths = [];
     try {
-        transaction(function (PDO $pdo) use ($repo, $id, $data, $admin, $changed): void {
+        transaction(function (PDO $pdo) use ($repo, $id, $data, $admin, $changed, $removeIds, $gallery, $linksChanged, &$removedPaths): void {
             $repo->update($id, $data);
+            $media = new PortfolioMediaRepository($pdo);
+            $removedPaths = $media->deleteImages($id, $removeIds);
+            $media->addImages($id, $gallery['paths']);
+            if ($linksChanged) {
+                $media->replaceLinks($id, $data['links']);
+            }
             log_activity($pdo, $admin['id'], ACTION_UPDATE_PORTFOLIO,
                 "Mengubah portofolio \"{$data['business_name']}\" (/{$data['slug']}): " . implode(', ', $changed));
         });
     } catch (PDOException $e) {
         delete_logo($logo['path']);
+        delete_uploads($gallery['paths']);
         if (!is_duplicate_key($e)) {
             throw $e;
         }
@@ -278,6 +397,7 @@ function portfolios_update(int $id): void
     if ($existing['logo_path'] !== null && $existing['logo_path'] !== $data['logo_path']) {
         delete_logo($existing['logo_path']);
     }
+    delete_uploads($removedPaths);
 
     flash('success', 'Perubahan portofolio disimpan.');
     foreach ($notices as $notice) {
@@ -293,7 +413,9 @@ function portfolios_destroy(int $id): void
 
     $repo = new PortfolioRepository(db());
     $portfolio = $repo->find($id) ?? not_found(true);
+    $imagePaths = (new PortfolioMediaRepository(db()))->imagePaths($id);
 
+    // Baris galeri & link ikut terhapus lewat ON DELETE CASCADE
     transaction(function (PDO $pdo) use ($repo, $portfolio, $admin): void {
         $repo->delete((int) $portfolio['id']);
         log_activity($pdo, $admin['id'], ACTION_DELETE_PORTFOLIO,
@@ -301,6 +423,7 @@ function portfolios_destroy(int $id): void
     });
 
     delete_logo($portfolio['logo_path']);
+    delete_uploads($imagePaths);
 
     flash('success', 'Portofolio dihapus.');
     redirect('/admin/portfolios');

@@ -4,6 +4,7 @@
  * @var array|null $portfolio  data tersimpan (null saat tambah)
  * @var array      $values     isian yang ditampilkan
  * @var array      $errors     pesan error per field
+ * @var array      $images     foto galeri tersimpan [{id, image_path}]
  */
 $isEdit = $portfolio !== null;
 $isPublished = $isEdit && $portfolio['status'] === 'published';
@@ -13,6 +14,11 @@ $err = fn(string $key): ?string => $errors[$key] ?? null;
 $host = preg_replace('#^https?://#', '', rtrim(url('/'), '/')) . '/';
 $logoPath = $isEdit ? $portfolio['logo_path'] : null;
 $nameForInitials = $val('business_name') !== '' ? $val('business_name') : ($portfolio['business_name'] ?? '');
+
+// Baris "link lain": selalu LINKS_MAX baris; baris kosong ekstra disembunyikan oleh admin.js
+$linkRows = array_values(is_array($values['links'] ?? null) ? $values['links'] : []);
+$linkRows = array_slice(array_pad($linkRows, LINKS_MAX, ['label' => '', 'url' => '']), 0, max(LINKS_MAX, count($linkRows)));
+$removeImages = array_map('intval', is_array($values['remove_images'] ?? null) ? $values['remove_images'] : []);
 
 // Header: aksi Publish/Unpublish/Lihat halaman (form terpisah) + Batal & Simpan
 $actions = '';
@@ -55,6 +61,7 @@ $checklist = [
     <input type="hidden" name="MAX_FILE_SIZE" value="<?= e((string) LOGO_MAX_BYTES) ?>">
 
     <div class="form-grid">
+        <div>
         <div class="card">
             <?= partial('input', [
                 'name' => 'business_name', 'label' => 'Nama usaha', 'value' => $val('business_name'),
@@ -99,6 +106,62 @@ $checklist = [
             ]) ?>
         </div>
 
+        <div class="card" style="margin-top:var(--space-4)">
+            <h2 class="t-h3">Media sosial &amp; toko online</h2>
+            <p class="t-small t-muted" style="margin:var(--space-1) 0 var(--space-5)">Opsional. Hanya yang diisi yang tampil di halaman publik.</p>
+            <?= partial('input', [
+                'name' => 'instagram', 'label' => 'Instagram', 'value' => $val('instagram'), 'error' => $err('instagram'),
+                'prefix' => 'instagram.com/', 'placeholder' => 'warungbusri',
+                'help' => 'Username tanpa @, atau tempel link profil.',
+                'attrs' => ['maxlength' => 100, 'autocomplete' => 'off'],
+            ]) ?>
+            <?= partial('input', [
+                'name' => 'tiktok', 'label' => 'TikTok / TikTok Shop', 'value' => $val('tiktok'), 'error' => $err('tiktok'),
+                'prefix' => 'tiktok.com/@', 'placeholder' => 'warungbusri',
+                'help' => 'Username tanpa @, atau tempel link profil.',
+                'attrs' => ['maxlength' => 100, 'autocomplete' => 'off'],
+            ]) ?>
+            <?= partial('input', [
+                'name' => 'shopee_url', 'label' => 'Shopee (URL toko)', 'type' => 'url', 'value' => $val('shopee_url'),
+                'error' => $err('shopee_url'), 'placeholder' => 'https://shopee.co.id/nama-toko',
+                'attrs' => ['maxlength' => 255, 'inputmode' => 'url'],
+            ]) ?>
+            <?= partial('input', [
+                'name' => 'tokopedia_url', 'label' => 'Tokopedia (URL toko)', 'type' => 'url', 'value' => $val('tokopedia_url'),
+                'error' => $err('tokopedia_url'), 'placeholder' => 'https://tokopedia.com/nama-toko',
+                'attrs' => ['maxlength' => 255, 'inputmode' => 'url'],
+            ]) ?>
+
+            <fieldset class="field link-fieldset" data-links style="margin-bottom:0">
+                <legend class="field-label">Link lain (label + URL)</legend>
+                <?php foreach ($linkRows as $i => $row): ?>
+                    <?php
+                    $rowError = $err("links.{$i}");
+                    $rowLabel = (string) ($row['label'] ?? '');
+                    $rowUrl = (string) ($row['url'] ?? '');
+                    $isEmpty = $rowLabel === '' && $rowUrl === '' && !$rowError;
+                    ?>
+                    <div class="link-row<?= $rowError ? ' field-error' : '' ?>" data-link-row<?= $isEmpty ? ' data-link-empty' : '' ?>>
+                        <div class="link-row-inputs">
+                            <label class="sr-only" for="f-link-label-<?= $i ?>">Label link <?= $i + 1 ?></label>
+                            <input class="input" id="f-link-label-<?= $i ?>" type="text" name="links[<?= $i ?>][label]"
+                                value="<?= e($rowLabel) ?>" placeholder="mis. Website" maxlength="50">
+                            <label class="sr-only" for="f-link-url-<?= $i ?>">URL link <?= $i + 1 ?></label>
+                            <input class="input" id="f-link-url-<?= $i ?>" type="url" name="links[<?= $i ?>][url]"
+                                value="<?= e($rowUrl) ?>" placeholder="https://" maxlength="255" inputmode="url"
+                                <?= $rowError ? 'aria-invalid="true" aria-describedby="f-link-error-' . $i . '"' : '' ?>>
+                        </div>
+                        <?php if ($rowError): ?>
+                            <p class="field-message" id="f-link-error-<?= $i ?>"><?= e($rowError) ?></p>
+                        <?php endif; ?>
+                    </div>
+                <?php endforeach; ?>
+                <button type="button" class="link-add" data-link-add hidden>+ Tambah link</button>
+                <p class="field-help">Mis. Website, GoFood, GrabFood, atau Linktree. Maksimal <?= e((string) LINKS_MAX) ?> link.</p>
+            </fieldset>
+        </div>
+        </div>
+
         <div>
             <div class="card">
                 <div class="side-label">Logo</div>
@@ -129,6 +192,40 @@ $checklist = [
                     'variant' => $isPublished ? 'published' : 'draft',
                     'label'   => $isPublished ? 'Published' : 'Draft',
                 ]) ?>
+            </div>
+
+            <div class="card" style="margin-top:var(--space-4)">
+                <div class="side-label">Galeri produk</div>
+                <?php if ($images): ?>
+                    <ul class="gallery-thumbs">
+                        <?php foreach ($images as $i => $image): ?>
+                            <li class="gallery-thumb">
+                                <img src="<?= e(asset($image['image_path'])) ?>" alt="Foto produk <?= $i + 1 ?>" loading="lazy">
+                                <label class="gallery-thumb-remove">
+                                    <input type="checkbox" name="remove_images[]" value="<?= e((string) $image['id']) ?>"
+                                        <?= in_array((int) $image['id'], $removeImages, true) ? 'checked' : '' ?>>
+                                    <span>Hapus</span>
+                                </label>
+                            </li>
+                        <?php endforeach; ?>
+                    </ul>
+                <?php else: ?>
+                    <p class="t-small t-muted" style="margin:0 0 var(--space-3)">Belum ada foto produk.</p>
+                <?php endif; ?>
+                <p class="t-small t-muted" style="margin:0">
+                    JPG, PNG, atau WEBP, maks 2 MB per foto, hingga <?= e((string) GALLERY_MAX_IMAGES) ?> foto
+                    (<?= count($images) ?>/<?= e((string) GALLERY_MAX_IMAGES) ?> terpakai).
+                </p>
+                <div class="field<?= $err('gallery') ? ' field-error' : '' ?>" style="margin-bottom:0">
+                    <label class="sr-only" for="f-gallery">Unggah foto produk</label>
+                    <input class="file-input" id="f-gallery" type="file" name="gallery[]" multiple
+                        accept="image/jpeg,image/png,image/webp"<?= $err('gallery') ? ' aria-invalid="true" aria-describedby="f-gallery-error"' : '' ?>>
+                    <?php if ($err('gallery')): ?>
+                        <p class="field-message" id="f-gallery-error"><?= e($err('gallery')) ?></p>
+                    <?php elseif ($errors): ?>
+                        <p class="field-help">Pilih ulang foto yang ingin diunggah.</p>
+                    <?php endif; ?>
+                </div>
             </div>
 
             <?php if ($isEdit && !$isPublished): ?>

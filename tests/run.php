@@ -53,5 +53,21 @@ check('validate_new_password: valid',
     validate_new_password('admin12345', 'rahasia-baru', 'rahasia-baru'),
     []);
 
+// Media sosial & URL
+check("normalize_social_username('@kopi.nusa')", normalize_social_username('@kopi.nusa'), 'kopi.nusa');
+check("normalize_social_username('kopi_nusa')", normalize_social_username('kopi_nusa'), 'kopi_nusa');
+check("normalize_social_username(URL instagram)",
+    normalize_social_username('https://www.instagram.com/kopi.nusa/'), 'kopi.nusa');
+check("normalize_social_username('tiktok.com/@kopi')", normalize_social_username('tiktok.com/@kopi'), 'kopi');
+check("normalize_social_username('kopi nusa')", normalize_social_username('kopi nusa'), null);
+check("normalize_social_username('<script>')", normalize_social_username('<script>'), null);
+check("normalize_http_url('shopee.co.id/toko')", normalize_http_url('shopee.co.id/toko'), 'https://shopee.co.id/toko');
+check("normalize_http_url('http://toko.id')", normalize_http_url('http://toko.id'), 'http://toko.id');
+check("normalize_http_url('javascript:alert(1)')", normalize_http_url('javascript:alert(1)'), null);
+check("normalize_http_url('ftp://toko.id')", normalize_http_url('ftp://toko.id'), null);
+check("normalize_http_url('bukan url')", normalize_http_url('bukan url'), null);
+check("normalize_http_url('localhost')", normalize_http_url('localhost'), null);
+check("display_url('https://www.toko.id/a/')", display_url('https://www.toko.id/a/'), 'toko.id/a');
+
 echo "\n" . ($failures === 0 ? 'Semua uji PASS.' : "{$failures} uji FAIL.") . "\n";
 exit($failures === 0 ? 0 : 1);

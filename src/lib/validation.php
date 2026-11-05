@@ -106,3 +106,62 @@ function validate_new_password(string $current, string $new, string $confirm): a
 
     return $errors;
 }
+
+/**
+ * Username media sosial (Instagram/TikTok) dari "@nama", "nama", atau URL profil → "nama".
+ * Null bila tidak valid. Hanya huruf, angka, titik, dan garis bawah (maks 30).
+ */
+function normalize_social_username(string $value): ?string
+{
+    $value = trim($value);
+    if ($value === '') {
+        return null;
+    }
+
+    // URL profil: ambil segmen path pertama (instagram.com/nama, tiktok.com/@nama)
+    if (preg_match('#^(?:https?://)?(?:[a-z0-9-]+\.)*(?:instagram\.com|tiktok\.com)/([^/?\#]+)#i', $value, $m) === 1) {
+        $value = $m[1];
+    }
+
+    $value = ltrim($value, '@');
+    if (preg_match('/^[A-Za-z0-9._]{1,30}$/', $value) !== 1) {
+        return null;
+    }
+
+    return $value;
+}
+
+/**
+ * URL http/https yang aman untuk ditautkan. Tambah "https://" bila skema kosong.
+ * Null bila tidak valid, skema lain (mis. javascript:), atau lebih dari 255 karakter.
+ */
+function normalize_http_url(string $value): ?string
+{
+    $value = trim($value);
+    if ($value === '' || preg_match('/\s/', $value) === 1) {
+        return null;
+    }
+    if (preg_match('#^[a-z][a-z0-9+.-]*:#i', $value) !== 1) {
+        $value = 'https://' . ltrim($value, '/');
+    }
+
+    $scheme = strtolower((string) parse_url($value, PHP_URL_SCHEME));
+    $host = (string) parse_url($value, PHP_URL_HOST);
+    if (!in_array($scheme, ['http', 'https'], true) || $host === '' || !str_contains($host, '.')) {
+        return null;
+    }
+    if (filter_var($value, FILTER_VALIDATE_URL) === false || strlen($value) > 255) {
+        return null;
+    }
+
+    return $value;
+}
+
+/**
+ * Teks tampilan URL tanpa skema & "www.", tanpa garis miring akhir: https://www.toko.id/a/ → toko.id/a
+ */
+function display_url(string $url): string
+{
+    $display = preg_replace('#^https?://(www\.)?#i', '', $url) ?? $url;
+    return rtrim($display, '/');
+}

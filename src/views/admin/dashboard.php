@@ -1,6 +1,6 @@
 <?php
 /**
- * Frame Admin/Dashboard. Deviasi #1: tanpa kartu "Jumlah admin".
+ * Frame Admin/Dashboard (3 kartu stat: Total, Published, Draft).
  * @var array $counts
  * @var array $logs
  */
