@@ -21,6 +21,7 @@ $menu = [
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="robots" content="noindex, nofollow">
     <title><?= e(($title ?? 'Admin') . ' — Portofolio UMKM') ?></title>
+    <link rel="icon" type="image/svg+xml" href="<?= e(asset('assets/img/logo-icon.svg')) ?>">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap">
@@ -30,8 +31,7 @@ $menu = [
 <body class="admin">
     <aside class="sidebar">
         <div class="sidebar-brand">
-            <div class="sidebar-title">Portofolio UMKM</div>
-            <div class="sidebar-subtitle">Panel admin</div>
+            <div class="sidebar-title"><img src="<?= e(asset('assets/img/logo-lockup.svg')) ?>" alt="Portofolio UMKM" height="36"></div>
         </div>
         <nav class="sidebar-nav" aria-label="Menu admin">
             <?php foreach ($menu as $key => [$label, $path]): ?>

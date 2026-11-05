@@ -10,11 +10,10 @@ body.public {
 .site-header { background: var(--color-surface); border-bottom: 1px solid var(--color-hairline); }
 .site-header-inner { padding: 22px var(--space-12); }
 .site-brand {
-  color: var(--color-primary);
-  font-weight: 700;
-  font-size: 16px;
+  display: inline-flex;
   text-decoration: none;
 }
+.site-brand img { display: block; height: 40px; width: auto; }
 
 .brand-rule {
   height: 3px;

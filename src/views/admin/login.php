@@ -12,6 +12,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="robots" content="noindex, nofollow">
     <title>Masuk — Portofolio UMKM</title>
+    <link rel="icon" type="image/svg+xml" href="<?= e(asset('assets/img/logo-icon.svg')) ?>">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap">
@@ -20,7 +21,7 @@
 </head>
 <body class="login">
     <section class="login-hero">
-        <div class="login-hero-brand">Portofolio UMKM</div>
+        <div class="login-hero-brand"><img src="<?= e(asset('assets/img/logo-lockup-dark.svg')) ?>" alt="Portofolio UMKM" height="40"></div>
         <div class="login-hero-bottom">
             <h1>Kelola portofolio UMKM dalam satu dashboard.</h1>
         </div>

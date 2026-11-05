@@ -12,6 +12,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title><?= e($title ?? 'Portofolio UMKM') ?></title>
+    <link rel="icon" type="image/svg+xml" href="<?= e(asset('assets/img/logo-icon.svg')) ?>">
     <?php if (!empty($metaDescription)): ?>
         <meta name="description" content="<?= e($metaDescription) ?>">
     <?php endif; ?>
@@ -24,7 +25,7 @@
 <body class="public">
     <header class="site-header">
         <div class="site-header-inner">
-            <a class="site-brand" href="<?= e(url('/')) ?>">Portofolio UMKM</a>
+            <a class="site-brand" href="<?= e(url('/')) ?>"><img src="<?= e(asset('assets/img/logo-lockup.svg')) ?>" alt="Portofolio UMKM" height="40"></a>
         </div>
     </header>
     <div class="brand-rule" aria-hidden="true"></div>
