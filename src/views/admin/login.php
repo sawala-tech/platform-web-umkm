@@ -23,7 +23,6 @@
         <div class="login-hero-brand">Portofolio UMKM</div>
         <div class="login-hero-bottom">
             <h1>Kelola portofolio UMKM dalam satu dashboard.</h1>
-            <p>Admin mengelola dan menerbitkan halaman publik setiap UMKM melalui URL unik.</p>
         </div>
     </section>
 
