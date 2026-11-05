@@ -54,9 +54,6 @@ php database/seed.php                                   # admin default + data c
 php tests/run.php     # uji fungsi murni: normalisasi slug, WhatsApp, validasi password
 ```
 
-Skenario uji manual lengkap (US1–US6 + pemeriksaan keamanan) ada di
-[`specs/001-portfolio-umkm-platform/quickstart.md`](specs/001-portfolio-umkm-platform/quickstart.md).
-
 ## Struktur
 
 ```text
@@ -68,7 +65,6 @@ src/repositories/  query per tabel (PDO prepared statement)
 src/handlers/  logika per rute
 src/views/     template HTML (layouts, partials, admin, public)
 tests/         run.php
-specs/         spesifikasi, rencana, dan tugas (Spec Kit)
 ```
 
 ### Deploy ke Wasmer Edge
@@ -95,5 +91,4 @@ Catatan:
 - Gambar upload disimpan di volume `uploads`; filesystem di luar volume tidak dipertahankan antar deploy.
 - `database/schema.sql` berisi `DROP TABLE`; jalankan hanya untuk setup awal, jangan saat deploy ulang.
 
-Desain UI mengacu pada file FigCraft `portofolio-umkm.figcraft`; deviasi desain dicatat di
-[`specs/001-portfolio-umkm-platform/plan.md`](specs/001-portfolio-umkm-platform/plan.md).
+Desain UI mengacu pada file FigCraft `portofolio-umkm.figcraft`.
