@@ -23,7 +23,23 @@ Tidak ada framework maupun Composer.
 cp config/config.example.php config/config.php
 #    lalu sesuaikan DB_HOST, DB_PORT, DB_NAME, DB_USER, DB_PASS, BASE_URL
 
-# 2. Database
+# 2. Database — pilih salah satu:
+```
+
+**Opsi A (disarankan): import dump** — sudah berisi tabel, data contoh, dan akun admin:
+
+```bash
+mysql -u root -e "CREATE DATABASE portofolio_umkm CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci"
+mysql -u root portofolio_umkm < database/portofolio_umkm.sql
+```
+
+Atau lewat phpMyAdmin: buat database `portofolio_umkm` (collation `utf8mb4_unicode_ci`), lalu tab *Import* → pilih
+`database/portofolio_umkm.sql` → *Go*. Dump ini tidak memuat `CREATE DATABASE` maupun `DROP TABLE`, jadi impor
+harus ke database kosong; jika tabel sudah ada, hapus database lalu buat ulang.
+
+**Opsi B: skema kosong + data awal** — tanpa data contoh:
+
+```bash
 mysql -u root -e "CREATE DATABASE portofolio_umkm CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci"
 mysql -u root portofolio_umkm < database/schema.sql     # atau phpMyAdmin → Import
 php database/seed.php                                   # admin default + data contoh
@@ -46,6 +62,8 @@ php database/seed.php                                   # admin default + data c
 |---|---|
 | `admin` | `admin12345` |
 
+Akun yang sama juga tersedia di dump `database/portofolio_umkm.sql` (Opsi A).
+
 **Segera ganti password** lewat menu *Ubah Password* setelah login pertama.
 
 ## Pengujian
@@ -58,7 +76,7 @@ php tests/run.php     # uji fungsi murni: normalisasi slug, WhatsApp, validasi p
 
 ```text
 config/        konfigurasi (config.example.php di-commit, config.php lokal)
-database/      schema.sql, seed.php
+database/      portofolio_umkm.sql (dump + data contoh), schema.sql, seed.php, migrations/
 public/        document root: index.php (front controller), assets/, uploads/
 src/lib/       helper bersama: db, auth, csrf, view, validation, activity_log, upload
 src/repositories/  query per tabel (PDO prepared statement)
@@ -67,28 +85,3 @@ src/views/     template HTML (layouts, partials, admin, public)
 tests/         run.php
 ```
 
-### Deploy ke Wasmer Edge
-
-Paket dan konfigurasi Wasmer: `wasmer.toml` (runtime `php/php` 8.3.4 + pemetaan `[fs]`),
-`app.yaml` (MySQL terkelola + volume `uploads`), `deploy/wasmer/config/config.php` (konfigurasi
-dari environment variable), dan `deploy/wasmer/php/php.ini`.
-
-```bash
-# Uji lokal dengan runtime Wasmer (butuh Wasmer CLI)
-wasmer run .
-
-# Deploy
-# 1. Ganti `owner` dan `BASE_URL` di app.yaml
-wasmer deploy
-# 2. Ambil kredensial database terkelola, lalu impor skema & jalankan seed sekali
-wasmer app database list --with-password
-#    impor database/schema.sql, database/migrations/003_sessions.sql, lalu php database/seed.php
-```
-
-Catatan:
-- `SESSION_DRIVER=db` (di `app.yaml`) menyimpan sesi di tabel `sessions`, agar login tetap
-  berlaku di banyak instance. Di XAMPP/lokal tanpa variabel ini, sesi tetap berbasis file.
-- Gambar upload disimpan di volume `uploads`; filesystem di luar volume tidak dipertahankan antar deploy.
-- `database/schema.sql` berisi `DROP TABLE`; jalankan hanya untuk setup awal, jangan saat deploy ulang.
-
-Desain UI mengacu pada file FigCraft `portofolio-umkm.figcraft`.
