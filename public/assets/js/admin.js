@@ -76,4 +76,25 @@
       }
     });
   });
+
+  // Link lain: tampilkan satu baris kosong saja, tombol "Tambah link" membuka baris berikutnya.
+  // Tanpa JS semua baris tampil.
+  document.querySelectorAll('[data-links]').forEach(function (fieldset) {
+    var empties = Array.prototype.slice.call(fieldset.querySelectorAll('[data-link-empty]'));
+    var addButton = fieldset.querySelector('[data-link-add]');
+    var filled = fieldset.querySelectorAll('[data-link-row]').length - empties.length;
+    // Sisakan satu baris kosong (atau nol bila sudah ada isian), sembunyikan sisanya
+    empties.slice(filled > 0 ? 0 : 1).forEach(function (row) { row.hidden = true; });
+    var hidden = function () { return fieldset.querySelectorAll('[data-link-row][hidden]'); };
+    if (!addButton) return;
+    addButton.hidden = hidden().length === 0;
+    addButton.addEventListener('click', function () {
+      var next = hidden()[0];
+      if (!next) return;
+      next.hidden = false;
+      var input = next.querySelector('input');
+      if (input) input.focus();
+      addButton.hidden = hidden().length === 0;
+    });
+  });
 })();

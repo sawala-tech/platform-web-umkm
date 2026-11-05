@@ -25,6 +25,7 @@ if ($adminRepo->findByUsername('admin') === null) {
 
 // 2. Contoh portofolio
 $portfolioRepo = new PortfolioRepository($pdo);
+$mediaRepo = new PortfolioMediaRepository($pdo);
 $samples = [
     [
         'business_name' => 'Warung Bu Sri',
@@ -32,7 +33,12 @@ $samples = [
         'bio'           => 'Warung makan rumahan dengan menu masakan Jawa autentik, dimasak setiap pagi dengan bahan segar.',
         'logo_path'     => null,
         'whatsapp'      => '6281234567890',
+        'instagram'     => 'warungbusri',
+        'tiktok'        => 'warungbusri',
+        'shopee_url'    => 'https://shopee.co.id/warungbusri',
+        'tokopedia_url' => null,
         'status'        => 'published',
+        'links'         => [['label' => 'GoFood', 'url' => 'https://gofood.co.id/warung-bu-sri']],
     ],
     [
         'business_name' => 'Batik Sari',
@@ -49,7 +55,8 @@ foreach ($samples as $sample) {
         echo "[=] Portofolio /{$sample['slug']} sudah ada, dilewati.\n";
         continue;
     }
-    $portfolioRepo->insert($sample);
+    $id = $portfolioRepo->insert($sample);
+    $mediaRepo->replaceLinks($id, $sample['links'] ?? []);
     echo "[+] Portofolio \"{$sample['business_name']}\" (/{$sample['slug']}, {$sample['status']}) dibuat.\n";
 }
 

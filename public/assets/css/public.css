@@ -18,17 +18,20 @@ body.public {
 
 .brand-rule {
   height: 3px;
-  background: linear-gradient(90deg, var(--color-primary), var(--color-success), var(--color-accent));
+  background: linear-gradient(90deg, var(--color-grad-blue), var(--color-grad-sky), var(--color-grad-amber));
 }
 
 .site-main {
   flex: 1;
   width: 100%;
-  max-width: 560px;
+  max-width: calc(960px + 2 * var(--space-4));
   margin: 0 auto;
   padding: var(--space-16) var(--space-4);
   text-align: center;
 }
+/* Konten utama selebar 560px; hanya galeri yang memakai lebar penuh 960px */
+.site-main > * { max-width: 560px; margin-left: auto; margin-right: auto; }
+.site-main > .gallery { max-width: none; }
 
 .site-footer-inner { padding: var(--space-6) var(--space-12); }
 
@@ -60,20 +63,186 @@ body.public {
   max-width: 560px;
   overflow-wrap: anywhere;
 }
-.profile-actions { max-width: 360px; margin: 0 auto; }
-.profile-actions .btn { padding: 14px 24px; font-size: 16px; }
 
 .contact-card {
-  max-width: 400px;
-  margin: var(--space-8) auto 0;
+  margin: 0 auto;
   padding: var(--space-6);
   background: var(--color-surface);
   border: 1px solid var(--color-hairline);
   border-radius: var(--radius-md);
   text-align: left;
 }
-.contact-label { font-size: 12.5px; color: var(--color-muted); margin-bottom: var(--space-1); }
-.contact-value { font-size: 20px; font-weight: 700; letter-spacing: 0.02em; }
+.contact-title { font-size: 18px; line-height: 22px; font-weight: 700; margin: 0 0 var(--space-3); }
+.contact-list { list-style: none; margin: 0; padding: 0; display: grid; gap: var(--space-3); }
+.contact-link {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-3) var(--space-4);
+  border-radius: 12px;
+  background: var(--color-bg);
+  color: var(--color-ink);
+  text-decoration: none;
+  transition: background-color .15s ease;
+}
+.contact-link:hover { background: var(--color-surface-2); }
+.contact-link:focus-visible { outline: 2px solid var(--color-primary); outline-offset: 2px; }
+.contact-badge {
+  flex: none;
+  width: 40px;
+  height: 40px;
+  border-radius: var(--radius-sm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  background: var(--color-primary);
+}
+.contact-badge svg { width: 20px; height: 20px; }
+/* Warna badge mengikuti identitas tiap kanal (FigCraft: Kontak/*) */
+.contact-badge-whatsapp { background: #25D366; }
+.contact-badge-instagram { background: #E1306C; }
+.contact-badge-tiktok { background: var(--color-ink); }
+.contact-badge-shopee { background: #EE4D2D; }
+.contact-badge-tokopedia { background: #03AC0E; }
+.contact-badge-link { background: var(--color-primary); }
+.contact-text { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+.contact-label { font-size: 12.5px; color: var(--color-muted); }
+.contact-value {
+  font-size: 16px;
+  font-weight: 600;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.contact-arrow { flex: none; display: flex; color: var(--color-muted); }
+
+/* Galeri produk */
+.gallery { margin-top: var(--space-16); }
+.gallery-title { margin-bottom: var(--space-5); }
+.gallery-grid {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--space-4);
+}
+.gallery-item {
+  display: block;
+  aspect-ratio: 1 / 1;
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  background: var(--color-surface-2);
+}
+.gallery-item img { width: 100%; height: 100%; object-fit: cover; display: block; transition: transform .2s ease; }
+.gallery-item:hover img { transform: scale(1.03); }
+.gallery-item:focus-visible { outline: 2px solid var(--color-primary); outline-offset: 2px; }
+.gallery-item { cursor: zoom-in; }
+
+/* Lightbox galeri: foto dibuka di halaman yang sama, bisa di-zoom & di-download */
+body:has(.lightbox[open]) { overflow: hidden; }
+.lightbox {
+  position: fixed;
+  inset: 0;
+  width: 100vw;
+  height: 100vh;
+  height: 100dvh;
+  max-width: none;
+  max-height: none;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: rgba(15, 27, 45, .97);
+  color: var(--color-on-dark);
+  overflow: hidden;
+}
+.lightbox::backdrop { background: rgba(15, 27, 45, .85); }
+.lightbox[open] { display: flex; flex-direction: column; }
+.lightbox-toolbar {
+  position: relative;
+  z-index: 2;
+  flex: none;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  padding: var(--space-4) var(--space-5);
+}
+.lightbox-counter { font-size: 14px; font-weight: 600; color: var(--color-on-dark-muted); font-variant-numeric: tabular-nums; }
+.lightbox-actions { display: flex; align-items: center; gap: var(--space-2); }
+.lightbox-btn {
+  flex: none;
+  width: 44px;
+  height: 44px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 0;
+  border-radius: 999px;
+  background: rgba(230, 238, 248, .12);
+  color: var(--color-on-dark);
+  cursor: pointer;
+  transition: background-color .15s ease;
+}
+.lightbox-btn:hover { background: rgba(230, 238, 248, .22); }
+.lightbox-btn:focus-visible,
+.lightbox-download:focus-visible { outline: 2px solid var(--color-primary-on-dark); outline-offset: 2px; }
+.lightbox-btn [hidden] { display: none; }
+.lightbox-btn span { display: flex; }
+.lightbox-download {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  height: 44px;
+  padding: 0 18px;
+  border-radius: 999px;
+  background: var(--color-primary);
+  color: #fff;
+  font-size: 14px;
+  font-weight: 600;
+  text-decoration: none;
+  transition: background-color .15s ease;
+}
+.lightbox-download:hover { background: var(--color-primary-hover); }
+.lightbox-stage {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 72px var(--space-6);
+  overflow: hidden;
+  touch-action: none;
+}
+.lightbox-img {
+  display: block;
+  max-width: 100%;
+  max-height: 100%;
+  width: auto;
+  height: auto;
+  border-radius: var(--radius-sm);
+  user-select: none;
+  -webkit-user-drag: none;
+  cursor: zoom-in;
+  transform-origin: center center;
+  transition: transform .2s ease;
+}
+.lightbox.is-zoomed .lightbox-img { cursor: grab; border-radius: 0; }
+.lightbox.is-zoomed .lightbox-img:active { cursor: grabbing; transition: none; }
+.lightbox-nav {
+  position: absolute;
+  z-index: 2;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 48px;
+  height: 48px;
+}
+.lightbox-prev { left: var(--space-4); }
+.lightbox-next { right: var(--space-4); }
+@media (prefers-reduced-motion: reduce) {
+  .lightbox-img { transition: none; }
+}
 
 /* 404 & error */
 .notfound { padding-top: var(--space-16); }
@@ -98,9 +267,19 @@ body.public {
   .site-main { padding-top: var(--space-12); }
   .profile-logo { width: 96px; height: 96px; margin-bottom: var(--space-6); }
   .profile-name { font-size: 32px; line-height: 40px; margin-bottom: var(--space-4); }
-  .profile-bio { font-size: 14px; line-height: 18px; margin-bottom: var(--space-3); }
-  .profile-actions { max-width: none; }
-  .contact-card { max-width: none; margin-top: var(--space-6); }
+  .profile-bio { font-size: 14px; line-height: 18px; margin-bottom: var(--space-5); }
+  .contact-card { padding: var(--space-5); }
+  .gallery { margin-top: var(--space-10); }
+  .gallery-title { font-size: 24px; line-height: 32px; margin-bottom: var(--space-4); }
+  .gallery-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--space-3); }
+  .gallery-item { border-radius: 12px; }
+  .lightbox-toolbar { padding: var(--space-3) var(--space-4); }
+  .lightbox-download { width: 44px; padding: 0; justify-content: center; }
+  .lightbox-download span { display: none; }
+  .lightbox-stage { padding: 0 0 88px; }
+  .lightbox-nav { top: auto; bottom: var(--space-5); transform: none; }
+  .lightbox-prev { left: calc(50% - 56px); }
+  .lightbox-next { right: calc(50% - 56px); }
   .notfound { padding-top: var(--space-12); }
   .notfound-code { font-size: 88px; }
   .notfound .t-h2 { font-size: 24px; line-height: 32px; }

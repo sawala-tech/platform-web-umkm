@@ -1,9 +1,11 @@
 # Konfigurasi lokal berisi kredensial (salin dari config.example.php)
 config/config.php
 
-# File logo hasil upload
+# File gambar hasil upload (logo & galeri produk)
 public/uploads/logos/*
 !public/uploads/logos/.gitkeep
+public/uploads/products/*
+!public/uploads/products/.gitkeep
 
 # PHP
 vendor/

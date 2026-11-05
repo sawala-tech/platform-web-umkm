@@ -27,3 +27,5 @@ const LOGIN_MAX_ATTEMPTS = 5;        // percobaan login gagal sebelum ditahan
 const LOGIN_LOCK_SECONDS = 300;      // lama penahanan login (5 menit)
 const LOGO_MAX_BYTES     = 2097152;  // ukuran logo maksimal (2 MB)
 const PER_PAGE           = 20;       // baris per halaman pada daftar
+const GALLERY_MAX_IMAGES = 12;       // jumlah foto galeri produk maksimal per portofolio
+const LINKS_MAX          = 5;        // jumlah "link lain" maksimal per portofolio

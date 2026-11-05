@@ -1,15 +1,15 @@
 /* Token desain dari /Users/albifajar/FigCraft/portofolio-umkm.figcraft (research R11) */
 :root {
   /* Warna */
-  --color-bg: #F6F8F7;
+  --color-bg: #F5F8FC;
   --color-surface: #FFFFFF;
-  --color-surface-2: #EEF5F3;
-  --color-hairline: #E3E9E6;
-  --color-ink: #10202B;
-  --color-muted: #5C6B73;
-  --color-primary: #0D9488;
-  --color-primary-hover: #0B7A70;
-  --color-primary-tint: #CCFBF1;
+  --color-surface-2: #EEF3F9;
+  --color-hairline: #E1E7EF;
+  --color-ink: #0F1B2D;
+  --color-muted: #5B6B7F;
+  --color-primary: #007FFF;
+  --color-primary-hover: #0066CC;
+  --color-primary-tint: #E6F2FF;
   --color-accent: #F59E0B;
   --color-success: #16A34A;
   --color-success-tint: #DCFCE7;
@@ -17,11 +17,17 @@
   --color-warning-tint: #FEF3C7;
   --color-danger: #DC2626;
   --color-danger-tint: #FEE2E2;
-  --color-info: #2563EB;
-  --color-info-tint: #DBEAFE;
-  --color-neutral-tint: #E5E7EB;
-  --color-on-dark: #E6F0EE;
-  --color-on-dark-muted: #9FB3B8;
+  --color-info: #4F46E5;
+  --color-info-tint: #E0E7FF;
+  --color-info-text: #3730A3;
+  --color-neutral-tint: #E8EDF3;
+  --color-grad-blue: #007FFF;
+  --color-grad-sky: #38BDF8;
+  --color-grad-amber: #F59E0B;
+  --color-grad-coral: #F97316;
+  --color-primary-on-dark: #66B2FF;
+  --color-on-dark: #E6EEF8;
+  --color-on-dark-muted: #94A6BD;
 
   /* Radius */
   --radius-sm: 10px;
@@ -110,7 +116,7 @@ body {
 }
 .badge-draft { background: var(--color-neutral-tint); color: var(--color-muted); }
 .badge-published { background: var(--color-success-tint); color: #15803D; }
-.badge-log-update { background: var(--color-info-tint); color: var(--color-info); }
+.badge-log-update { background: var(--color-info-tint); color: var(--color-info-text); }
 .badge-log-delete { background: var(--color-danger-tint); color: var(--color-danger); }
 
 /* Alert */
