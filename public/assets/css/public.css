@@ -1,0 +1,109 @@
+/* Halaman publik — frame Publik/Portofolio & Publik/404 (Desktop 1440 / Mobile 390) */
+
+body.public {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  overflow-x: hidden;
+}
+
+.site-header { background: var(--color-surface); border-bottom: 1px solid var(--color-hairline); }
+.site-header-inner { padding: 22px var(--space-12); }
+.site-brand {
+  color: var(--color-primary);
+  font-weight: 700;
+  font-size: 16px;
+  text-decoration: none;
+}
+
+.brand-rule {
+  height: 3px;
+  background: linear-gradient(90deg, var(--color-primary), var(--color-success), var(--color-accent));
+}
+
+.site-main {
+  flex: 1;
+  width: 100%;
+  max-width: 560px;
+  margin: 0 auto;
+  padding: var(--space-16) var(--space-4);
+  text-align: center;
+}
+
+.site-footer-inner { padding: var(--space-6) var(--space-12); }
+
+/* Portofolio */
+.profile-logo {
+  width: 96px;
+  height: 96px;
+  margin: 0 auto var(--space-8);
+  border-radius: var(--radius-md);
+  object-fit: cover;
+  display: block;
+}
+.profile-initials {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--color-primary-tint);
+  color: var(--color-primary-hover);
+  font-weight: 700;
+  font-size: 32px;
+}
+.profile-eyebrow { margin-bottom: var(--space-3); }
+.profile-name { font-size: 48px; line-height: 56px; margin-bottom: var(--space-6); overflow-wrap: anywhere; }
+.profile-bio {
+  color: var(--color-muted);
+  font-size: 16px;
+  line-height: 24px;
+  margin: 0 auto var(--space-10);
+  max-width: 560px;
+  overflow-wrap: anywhere;
+}
+.profile-actions { max-width: 360px; margin: 0 auto; }
+.profile-actions .btn { padding: 14px 24px; font-size: 16px; }
+
+.contact-card {
+  max-width: 400px;
+  margin: var(--space-8) auto 0;
+  padding: var(--space-6);
+  background: var(--color-surface);
+  border: 1px solid var(--color-hairline);
+  border-radius: var(--radius-md);
+  text-align: left;
+}
+.contact-label { font-size: 12.5px; color: var(--color-muted); margin-bottom: var(--space-1); }
+.contact-value { font-size: 20px; font-weight: 700; letter-spacing: 0.02em; }
+
+/* 404 & error */
+.notfound { padding-top: var(--space-16); }
+.notfound-code {
+  font-size: 120px;
+  line-height: 1;
+  font-weight: 700;
+  color: var(--color-primary);
+  letter-spacing: 0.02em;
+  margin: 0 0 var(--space-6);
+}
+.notfound .t-h2 { margin-bottom: var(--space-3); }
+.notfound p { color: var(--color-muted); font-size: 16px; line-height: 24px; margin: 0 0 var(--space-10); }
+.notfound .btn { min-width: 360px; padding: 14px 24px; font-size: 16px; }
+
+/* Beranda */
+.home p { color: var(--color-muted); font-size: 16px; line-height: 24px; margin: var(--space-4) 0 var(--space-8); }
+
+@media (max-width: 640px) {
+  .site-header-inner, .site-footer-inner { padding-left: var(--space-4); padding-right: var(--space-4); }
+  .site-header-inner { padding-top: 18px; padding-bottom: 18px; }
+  .site-main { padding-top: var(--space-12); }
+  .profile-logo { width: 96px; height: 96px; margin-bottom: var(--space-6); }
+  .profile-name { font-size: 32px; line-height: 40px; margin-bottom: var(--space-4); }
+  .profile-bio { font-size: 14px; line-height: 18px; margin-bottom: var(--space-3); }
+  .profile-actions { max-width: none; }
+  .contact-card { max-width: none; margin-top: var(--space-6); }
+  .notfound { padding-top: var(--space-12); }
+  .notfound-code { font-size: 88px; }
+  .notfound .t-h2 { font-size: 24px; line-height: 32px; }
+  .notfound p { font-size: 14px; line-height: 18px; }
+  .notfound .btn { min-width: 0; width: 100%; }
+}

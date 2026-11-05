@@ -1,0 +1,20 @@
+# Konfigurasi lokal berisi kredensial (salin dari config.example.php)
+config/config.php
+
+# File logo hasil upload
+public/uploads/logos/*
+!public/uploads/logos/.gitkeep
+
+# PHP
+vendor/
+*.log
+*.cache
+.env
+
+# OS & editor
+.DS_Store
+Thumbs.db
+*.tmp
+*.swp
+.vscode/
+.idea/
