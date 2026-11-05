@@ -38,7 +38,7 @@ php database/seed.php                                   # admin default + data c
   Pastikan `BASE_URL` di `config/config.php` sama dengan alamat yang dipakai.
 - **XAMPP**: buat VirtualHost dengan `DocumentRoot` ke folder `public/` (mis. `http://umkm.test`),
   atau taruh proyek di `htdocs/` dan set `BASE_URL` ke
-  `http://localhost/platform-web-umkm/public`.
+  `http://localhost/platform-web-umkm` (`.htaccess` di root meneruskan semua request ke `public/`).
 
 ### Akun awal
 

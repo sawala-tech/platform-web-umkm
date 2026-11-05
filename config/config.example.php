@@ -15,7 +15,7 @@ const DB_USER = 'root';
 const DB_PASS = 'root';
 
 // Alamat dasar aplikasi tanpa garis miring di akhir.
-// Contoh XAMPP subfolder: 'http://localhost/platform-web-umkm/public'
+// Contoh XAMPP/MAMP subfolder: 'http://localhost/platform-web-umkm'
 const BASE_URL = 'http://localhost:8080';
 
 // 'development' menampilkan error, 'production' hanya mencatat ke log
