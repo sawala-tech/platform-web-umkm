@@ -10,7 +10,9 @@ function start_session(): void
         return;
     }
 
-    $secure = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off');
+    // Di balik proxy TLS (mis. Wasmer Edge) $_SERVER['HTTPS'] bisa kosong; andalkan X-Forwarded-Proto.
+    $secure = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off')
+        || (($_SERVER['HTTP_X_FORWARDED_PROTO'] ?? '') === 'https');
 
     ini_set('session.use_strict_mode', '1');
     ini_set('session.use_only_cookies', '1');
@@ -22,6 +24,12 @@ function start_session(): void
         'httponly' => true,
         'samesite' => 'Lax',
     ]);
+
+    if (getenv('SESSION_DRIVER') === 'db') {
+        require_once __DIR__ . '/session_db.php';
+        session_set_save_handler(new DbSessionHandler(), true);
+    }
+
     session_start();
 }
 

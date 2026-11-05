@@ -71,5 +71,29 @@ tests/         run.php
 specs/         spesifikasi, rencana, dan tugas (Spec Kit)
 ```
 
+### Deploy ke Wasmer Edge
+
+Paket dan konfigurasi Wasmer: `wasmer.toml` (runtime `php/php` 8.3.4 + pemetaan `[fs]`),
+`app.yaml` (MySQL terkelola + volume `uploads`), `deploy/wasmer/config/config.php` (konfigurasi
+dari environment variable), dan `deploy/wasmer/php/php.ini`.
+
+```bash
+# Uji lokal dengan runtime Wasmer (butuh Wasmer CLI)
+wasmer run .
+
+# Deploy
+# 1. Ganti `owner` dan `BASE_URL` di app.yaml
+wasmer deploy
+# 2. Ambil kredensial database terkelola, lalu impor skema & jalankan seed sekali
+wasmer app database list --with-password
+#    impor database/schema.sql, database/migrations/003_sessions.sql, lalu php database/seed.php
+```
+
+Catatan:
+- `SESSION_DRIVER=db` (di `app.yaml`) menyimpan sesi di tabel `sessions`, agar login tetap
+  berlaku di banyak instance. Di XAMPP/lokal tanpa variabel ini, sesi tetap berbasis file.
+- Gambar upload disimpan di volume `uploads`; filesystem di luar volume tidak dipertahankan antar deploy.
+- `database/schema.sql` berisi `DROP TABLE`; jalankan hanya untuk setup awal, jangan saat deploy ulang.
+
 Desain UI mengacu pada file FigCraft `portofolio-umkm.figcraft`; deviasi desain dicatat di
 [`specs/001-portfolio-umkm-platform/plan.md`](specs/001-portfolio-umkm-platform/plan.md).

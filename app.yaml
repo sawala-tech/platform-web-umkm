@@ -1,0 +1,25 @@
+kind: wasmer.io/App.v0
+# GANTI: nama akun Wasmer Anda
+owner: GANTI_OWNER_WASMER
+name: portofolio-umkm
+package: .
+
+scaling:
+  # PHP menangani satu request per instance pada satu waktu (disarankan dokumentasi Wasmer)
+  mode: single_concurrency
+
+capabilities:
+  database:
+    engine: mysql
+
+# Upload gambar (logo & galeri) harus disimpan di volume agar tidak hilang saat deploy ulang.
+volumes:
+  - name: uploads
+    mount: /app/public/uploads
+
+env:
+  APP_ENV: production
+  # GANTI setelah domain final diketahui
+  BASE_URL: https://portofolio-umkm.wasmer.app
+  # Sesi disimpan di database agar konsisten antar instance
+  SESSION_DRIVER: db

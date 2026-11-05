@@ -11,6 +11,7 @@ DROP TABLE IF EXISTS activity_logs;
 DROP TABLE IF EXISTS portfolio_links;
 DROP TABLE IF EXISTS portfolio_images;
 DROP TABLE IF EXISTS login_attempts;
+DROP TABLE IF EXISTS sessions;
 DROP TABLE IF EXISTS site_profile;
 DROP TABLE IF EXISTS admins;
 

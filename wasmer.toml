@@ -1,0 +1,20 @@
+[dependencies]
+"php/php" = "=8.3.4"
+
+# Hanya bagian yang dibutuhkan runtime yang ikut dikemas (tidak termasuk .git, specs/, tests/, database/).
+[fs]
+"/app/public" = "public"
+"/app/src" = "src"
+"/app/config" = "deploy/wasmer/config"
+"/app/php" = "deploy/wasmer/php"
+
+[[command]]
+name = "run"
+module = "php/php:php"
+runner = "wasi"
+
+[command.annotations.wasi]
+# Sama seperti `php -S localhost:8080 -t public public/index.php` di README:
+# script router (index.php) wajib agar URL non-file diteruskan ke front controller.
+main-args = ["-t", "/app/public", "-S", "localhost:8080", "/app/public/index.php"]
+env = ["PHPRC=/app/php/"]
